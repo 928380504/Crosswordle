@@ -4,67 +4,59 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface DialogProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
   children: React.ReactNode;
 }
 
-const DialogContext = React.createContext<{
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}>({
-  open: false,
-  onOpenChange: () => {},
+interface DialogContextType {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+const DialogContext = React.createContext<DialogContextType>({
+  isOpen: false,
+  setIsOpen: () => {},
 });
 
-export function Dialog({ children, ...props }: DialogProps) {
-  const [open, setOpen] = React.useState(props.open || false);
+export function Dialog({ children }: DialogProps) {
+  const [isOpen, setIsOpen] = React.useState(false);
 
   return (
-    <DialogContext.Provider
-      value={{
-        open,
-        onOpenChange: (newOpen) => {
-          setOpen(newOpen);
-          props.onOpenChange?.(newOpen);
-        },
-      }}
-    >
+    <DialogContext.Provider value={{ isOpen, setIsOpen }}>
       {children}
     </DialogContext.Provider>
   );
 }
 
-export function DialogTrigger({ children, ...props }: { children: React.ReactNode }) {
-  const { onOpenChange } = React.useContext(DialogContext);
+export function DialogTrigger({ children }: { children: React.ReactNode }) {
+  const { setIsOpen } = React.useContext(DialogContext);
   
   return React.cloneElement(React.Children.only(children) as React.ReactElement, {
-    onClick: () => onOpenChange(true),
-    ...props,
+    onClick: () => setIsOpen(true),
   });
 }
 
 export function DialogContent({
   children,
   className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  const { open, onOpenChange } = React.useContext(DialogContext);
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const { isOpen, setIsOpen } = React.useContext(DialogContext);
 
-  if (!open) return null;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
         className="fixed inset-0 bg-black/50"
-        onClick={() => onOpenChange(false)}
+        onClick={() => setIsOpen(false)}
       />
       <div
         className={cn(
           "relative bg-background p-6 rounded-lg shadow-lg max-w-lg w-full mx-4",
           className
         )}
-        {...props}
       >
         {children}
       </div>
@@ -73,40 +65,43 @@ export function DialogContent({
 }
 
 export function DialogHeader({
+  children,
   className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div
-      className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)}
-      {...props}
-    />
+    <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)}>
+      {children}
+    </div>
   );
 }
 
 export function DialogTitle({
+  children,
   className,
-  ...props
-}: React.HTMLAttributes<HTMLHeadingElement>) {
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <h2
-      className={cn(
-        "text-lg font-semibold leading-none tracking-tight",
-        className
-      )}
-      {...props}
-    />
+    <h2 className={cn("text-lg font-semibold leading-none tracking-tight", className)}>
+      {children}
+    </h2>
   );
 }
 
 export function DialogDescription({
+  children,
   className,
-  ...props
-}: React.HTMLAttributes<HTMLParagraphElement>) {
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <p
-      className={cn("text-sm text-muted-foreground", className)}
-      {...props}
-    />
+    <p className={cn("text-sm text-muted-foreground", className)}>
+      {children}
+    </p>
   );
 } 
