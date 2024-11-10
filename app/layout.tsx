@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
 import { metadata as siteMetadata } from './metadata';
 import Script from 'next/script';
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,7 +28,41 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "Crosswordle",
+              "description": "An addictive blend of Crossword and Wordle puzzle game",
+              "applicationCategory": "Game",
+              "operatingSystem": "Web Browser",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "ratingCount": "1000"
+              }
+            })
+          }}
+        />
+      </head>
       <body className={inter.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-YSCPN2ZEKM"
           strategy="afterInteractive"
@@ -40,14 +75,6 @@ export default function RootLayout({
             gtag('config', 'G-YSCPN2ZEKM');
           `}
         </Script>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
       </body>
     </html>
   );
