@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Gamepad2, RefreshCcw } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -27,7 +27,9 @@ const INITIAL_STATE: GameState = {
   hints: 3,
   score: 0,
   streak: 0,
-  timeElapsed: 0
+  timeElapsed: 0,
+  isLoading: false,
+  lastPlayedAt: null as Date | null,
 };
 
 export default function Home() {
@@ -40,7 +42,7 @@ export default function Home() {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, []);
+  }, [timer]);
 
   const startNewGame = () => {
     if (timer) clearInterval(timer);
@@ -62,6 +64,11 @@ export default function Home() {
     setTimer(newTimer);
   };
 
+  /**
+   * 计算游戏分数
+   * @param baseScore - 基础分数
+   * @returns 最终分数
+   */
   const calculateScore = (baseScore: number) => {
     const timeBonus = Math.max(0, 300 - gameState.timeElapsed);
     const hintPenalty = (3 - gameState.hints) * 50;
@@ -77,7 +84,7 @@ export default function Home() {
 
     const word = gameState.input.toUpperCase();
     const newBoard = gameState.board.map((row, i) => 
-      i === gameState.currentRow ? [...word] : row
+      i === gameState.currentRow ? word.split('') : row
     );
 
     if (gameState.gameWords.includes(word)) {
@@ -128,6 +135,10 @@ export default function Home() {
     playSound('keyPress');
   };
 
+  const score = useMemo(() => {
+    return calculateScore(100);
+  }, [gameState.timeElapsed, gameState.hints]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-[1400px] mx-auto px-6 py-8">
@@ -147,6 +158,7 @@ export default function Home() {
         <div className="flex flex-col gap-8">
           <GameBoard
             board={gameState.board}
+            gameWords={gameState.gameWords}
             currentRow={gameState.currentRow}
             input={gameState.input}
             message={gameState.message}

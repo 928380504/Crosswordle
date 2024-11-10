@@ -5,11 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Timer, Zap, Trophy, RefreshCcw } from "lucide-react";
-import { CellState } from "../types/game";
+import { CellState, CellStateType } from "../types/game";
 import VirtualKeyboard from './VirtualKeyboard';
 
 interface GameBoardProps {
   board: string[][];
+  gameWords: string[];
   currentRow: number;
   input: string;
   message: string;
@@ -27,6 +28,7 @@ interface GameBoardProps {
 
 export default function GameBoard({
   board,
+  gameWords,
   currentRow,
   input,
   message,
@@ -44,14 +46,30 @@ export default function GameBoard({
   const [cellStates, setCellStates] = useState<CellState[][]>([]);
 
   useEffect(() => {
-    const states = board.map(row => 
-      row.map(cell => ({
-        letter: cell,
-        state: cell ? 'correct' : 'empty'
-      }))
+    const states: CellState[][] = board.map((row, rowIndex) =>
+      row.map((letter) => {
+        if (!letter) {
+          return { letter: "", state: "empty" as CellStateType };
+        }
+        
+        const word = gameWords[rowIndex];
+        if (!word) {
+          return { letter, state: "empty" as CellStateType };
+        }
+
+        if (word.includes(letter)) {
+          return { 
+            letter, 
+            state: word[rowIndex] === letter ? "correct" : "present" as CellStateType 
+          };
+        }
+
+        return { letter, state: "absent" as CellStateType };
+      })
     );
+
     setCellStates(states);
-  }, [board]);
+  }, [board, gameWords]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {

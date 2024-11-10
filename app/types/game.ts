@@ -10,9 +10,15 @@ export interface GameState {
   score: number;
   streak: number;
   timeElapsed: number;
+  isLoading: boolean;
+  lastPlayedAt: Date | null;
 }
 
+// 单元格状态类型
+export type CellStateType = "correct" | "present" | "absent" | "empty";
+
+// 单元格状态接口
 export interface CellState {
   letter: string;
-  state: 'correct' | 'present' | 'absent' | 'empty';
+  state: CellStateType;
 }
