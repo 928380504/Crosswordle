@@ -1,35 +1,34 @@
 "use client";
 
-import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Volume2, VolumeX } from "lucide-react";
 import { useState } from "react";
 
 interface SoundToggleProps {
-  onToggle: () => boolean;
-  initialMuted?: boolean;
+  onToggle: (isMuted: boolean) => void;
 }
 
-export default function SoundToggle({ onToggle, initialMuted = false }: SoundToggleProps) {
-  const [isMuted, setIsMuted] = useState(initialMuted);
+export default function SoundToggle({ onToggle }: SoundToggleProps) {
+  const [isMuted, setIsMuted] = useState(false);
 
   const handleToggle = () => {
-    const newMutedState = onToggle();
+    const newMutedState = !isMuted;
     setIsMuted(newMutedState);
+    onToggle(newMutedState);
   };
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="icon"
       onClick={handleToggle}
-      className="h-10 w-10"
+      className="w-10 h-10"
     >
       {isMuted ? (
-        <VolumeX className="h-6 w-6" />
+        <VolumeX className="h-5 w-5" />
       ) : (
-        <Volume2 className="h-6 w-6" />
+        <Volume2 className="h-5 w-5" />
       )}
-      <span className="sr-only">Toggle sound</span>
     </Button>
   );
 }

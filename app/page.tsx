@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Gamepad2, RefreshCcw } from "lucide-react";
+import { Gamepad2 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import SoundToggle from "./components/SoundToggle";
 import GameBoard from "./components/GameBoard";
 import GameRules from "./components/GameRules";
 import { GameState } from "./types/game";
 import { useGameSounds } from "./hooks/useSound";
+import { useGameState } from './hooks/useGameState';
+import { Badge } from "@/components/ui/badge";
+import GameStats from "./components/GameStats";
 
 const WORDS = [
   ["REACT", "REDUX", "NEXT", "NODE", "TYPE"],
@@ -17,7 +20,7 @@ const WORDS = [
 ];
 
 const INITIAL_STATE: GameState = {
-  board: Array(5).fill(Array(5).fill("")),
+  board: Array(5).fill(0).map(() => Array(5).fill("")),
   currentRow: 0,
   currentCol: 0,
   gameWords: [],
@@ -29,115 +32,148 @@ const INITIAL_STATE: GameState = {
   streak: 0,
   timeElapsed: 0,
   isLoading: false,
-  lastPlayedAt: null as Date | null,
+  lastPlayedAt: null,
+  gameMode: null,
 };
 
 export default function Home() {
-  const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);
+  const { gameState, gameStats, updateGameState } = useGameState(INITIAL_STATE);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
-  const { playSound, toggleMute, getMuteStatus } = useGameSounds();
+  const { playSound } = useGameSounds();
 
+  // 初始化游戏
   useEffect(() => {
     startNewGame();
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [timer]);
+  }, []);
 
+  // 开始新游戏
   const startNewGame = () => {
     if (timer) clearInterval(timer);
     
     const randomSet = WORDS[Math.floor(Math.random() * WORDS.length)];
-    setGameState({
+    updateGameState({
       ...INITIAL_STATE,
       gameWords: randomSet,
-      streak: gameState.gameOver ? 0 : gameState.streak
+      streak: gameState.gameOver ? 0 : gameState.streak,
+      lastPlayedAt: new Date()
     });
 
     const newTimer = setInterval(() => {
-      setGameState(prev => ({
-        ...prev,
-        timeElapsed: prev.timeElapsed + 1
-      }));
+      updateGameState({
+        timeElapsed: gameState.timeElapsed + 1
+      });
     }, 1000);
 
     setTimer(newTimer);
   };
 
-  /**
-   * 计算游戏分数
-   * @param baseScore - 基础分数
-   * @returns 最终分数
-   */
-  const calculateScore = (baseScore: number) => {
-    const timeBonus = Math.max(0, 300 - gameState.timeElapsed);
-    const hintPenalty = (3 - gameState.hints) * 50;
-    return baseScore + timeBonus - hintPenalty;
+  // 处理输入更新
+  const handleInputChange = (value: string) => {
+    updateGameState({
+      input: value.toUpperCase(),
+      message: ""
+    });
   };
 
+  // 处理提交
   const handleSubmit = () => {
-    if (gameState.input.length !== 5) {
+    const { input, currentRow, gameWords } = gameState;
+
+    if (input.length !== 5) {
       playSound('wrong');
-      setGameState(prev => ({...prev, message: "Please enter a 5-letter word"}));
+      updateGameState({
+        message: "Please enter a 5-letter word"
+      });
       return;
     }
 
-    const word = gameState.input.toUpperCase();
+    const word = input.toUpperCase();
+    const currentWord = gameWords[currentRow];
+
+    // 创建新的游戏板
     const newBoard = gameState.board.map((row, i) => 
-      i === gameState.currentRow ? word.split('') : row
+      i === currentRow ? word.split('') : row
     );
 
-    if (gameState.gameWords.includes(word)) {
+    if (gameWords.includes(word)) {
+      const isLastRow = currentRow === 4;
       const newScore = calculateScore(100);
-      const isLastRow = gameState.currentRow === 4;
       
       playSound(isLastRow ? 'victory' : 'correct');
       
-      setGameState(prev => ({
-        ...prev,
+      updateGameState({
         board: newBoard,
         input: "",
-        message: isLastRow ? "Congratulations! You've completed the game!" : "Correct word found!",
-        currentRow: prev.currentRow + 1,
+        currentRow: gameState.currentRow + 1,
+        message: isLastRow ? "Congratulations! Game completed!" : "Correct word!",
         gameOver: isLastRow,
-        score: prev.score + newScore,
-        streak: isLastRow ? prev.streak + 1 : prev.streak
-      }));
+        score: gameState.score + newScore,
+        streak: isLastRow ? gameState.streak + 1 : gameState.streak
+      });
 
       if (isLastRow && timer) {
         clearInterval(timer);
       }
     } else {
       playSound('wrong');
-      setGameState(prev => ({
-        ...prev,
+      updateGameState({
         board: newBoard,
         input: "",
-        message: "Word not in the list!"
-      }));
+        message: "Word not in list!"
+      });
     }
   };
 
+  // 处理提示
   const handleHint = () => {
-    if (gameState.hints > 0) {
+    const { hints, currentRow, gameWords } = gameState;
+    if (hints > 0) {
       playSound('hint');
-      const currentWord = gameState.gameWords[gameState.currentRow];
-      setGameState(prev => ({
-        ...prev,
+      const currentWord = gameWords[currentRow];
+      updateGameState({
         input: currentWord[0],
-        hints: prev.hints - 1,
+        hints: gameState.hints - 1,
         message: `Hint: The word starts with "${currentWord[0]}"`
-      }));
+      });
     }
   };
 
+  // 处理按键
   const handleKeyPress = (key: string) => {
+    if (gameState.gameOver) return;
+    
     playSound('keyPress');
+    const { input } = gameState;
+
+    switch (key) {
+      case 'ENTER':
+        handleSubmit();
+        break;
+      case 'BACKSPACE':
+        handleInputChange(input.slice(0, -1));
+        break;
+      default:
+        if (input.length < 5) {
+          handleInputChange(input + key);
+        }
+        break;
+    }
   };
 
-  const score = useMemo(() => {
-    return calculateScore(100);
-  }, [gameState.timeElapsed, gameState.hints]);
+  // 计算分数
+  const calculateScore = (baseScore: number) => {
+    const timeBonus = Math.max(0, 300 - gameState.timeElapsed);
+    const hintPenalty = (3 - gameState.hints) * 50;
+    return baseScore + timeBonus - hintPenalty;
+  };
+
+  const handleSoundToggle = (isMuted: boolean) => {
+    // 这里可以处理声音开关逻辑
+    // 例如：updateSoundSettings(isMuted);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -150,12 +186,29 @@ export default function Home() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <SoundToggle onToggle={toggleMute} />
+            <GameStats stats={{
+              ...gameStats,
+              averageTime: 180,
+              totalHintsUsed: 0,
+              perfectGames: 0,
+            }} />
+            <SoundToggle onToggle={handleSoundToggle} />
             <ThemeToggle />
           </div>
         </div>
 
         <div className="flex flex-col gap-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Badge variant="outline">
+              High Score: {gameStats.highScore}
+            </Badge>
+            <Badge variant="outline">
+              Games Played: {gameStats.gamesPlayed}
+            </Badge>
+            <Badge variant="outline">
+              Longest Streak: {gameStats.longestStreak}
+            </Badge>
+          </div>
           <GameBoard
             board={gameState.board}
             gameWords={gameState.gameWords}
@@ -167,7 +220,7 @@ export default function Home() {
             streak={gameState.streak}
             timeElapsed={gameState.timeElapsed}
             hints={gameState.hints}
-            onInputChange={(value) => setGameState(prev => ({...prev, input: value}))}
+            onInputChange={handleInputChange}
             onSubmit={handleSubmit}
             onHint={handleHint}
             onNewGame={startNewGame}

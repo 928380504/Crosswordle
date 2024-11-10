@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Timer, Zap, Trophy, RefreshCcw } from "lucide-react";
 import { CellState, CellStateType } from "../types/game";
 import VirtualKeyboard from './VirtualKeyboard';
+import ShareGame from './ShareGame';
 
 interface GameBoardProps {
   board: string[][];
@@ -47,7 +48,7 @@ export default function GameBoard({
 
   useEffect(() => {
     const states: CellState[][] = board.map((row, rowIndex) =>
-      row.map((letter) => {
+      row.map((letter, colIndex) => {
         if (!letter) {
           return { letter: "", state: "empty" as CellStateType };
         }
@@ -57,11 +58,19 @@ export default function GameBoard({
           return { letter, state: "empty" as CellStateType };
         }
 
+        if (word[colIndex] === letter) {
+          return { letter, state: "correct" as CellStateType };
+        }
+        
         if (word.includes(letter)) {
-          return { 
-            letter, 
-            state: word[rowIndex] === letter ? "correct" : "present" as CellStateType 
-          };
+          const letterCount = row.slice(0, colIndex + 1)
+            .filter(l => l === letter).length;
+          const targetCount = word.split('')
+            .filter(l => l === letter).length;
+          
+          if (letterCount <= targetCount) {
+            return { letter, state: "present" as CellStateType };
+          }
         }
 
         return { letter, state: "absent" as CellStateType };
@@ -98,14 +107,14 @@ export default function GameBoard({
   const handleVirtualKeyPress = (key: string) => {
     if (gameOver) return;
     
-    onKeyPress(key);
-    
     if (key === 'ENTER') {
       onSubmit();
     } else if (key === 'BACKSPACE') {
       onInputChange(input.slice(0, -1));
     } else if (input.length < 5) {
-      onInputChange(input + key);
+      const newInput = (input + key).toUpperCase();
+      onKeyPress(key);
+      onInputChange(newInput);
     }
   };
 
@@ -134,6 +143,14 @@ export default function GameBoard({
                 Time: {formatTime(timeElapsed)}
               </Badge>
             </div>
+            {gameOver && (
+              <ShareGame
+                score={score}
+                timeElapsed={timeElapsed}
+                board={board}
+                hintsUsed={3 - hints}
+              />
+            )}
             <Button
               variant="outline"
               onClick={onNewGame}
@@ -211,10 +228,10 @@ export default function GameBoard({
           {/* Virtual Keyboard */}
           <div className="mt-4">
             <VirtualKeyboard 
-              onKeyPress={handleVirtualKeyPress} 
-              usedLetters={board.flat()} 
+              onKeyPress={handleVirtualKeyPress}
+              usedLetters={board.flat()}
               currentInput={input}
-              gameWords={board.slice(0, currentRow).flat()}
+              gameWords={gameWords}
             />
           </div>
         </div>

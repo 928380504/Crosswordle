@@ -1,63 +1,46 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-
-type SoundEffects = {
-  keyPress: HTMLAudioElement;
-  correct: HTMLAudioElement;
-  wrong: HTMLAudioElement;
-  victory: HTMLAudioElement;
-  hint: HTMLAudioElement;
-};
+import { useCallback, useState } from 'react';
+import useSound from 'use-sound';
 
 export function useGameSounds() {
-  const sounds = useRef<Partial<SoundEffects>>({});
-  const isMuted = useRef(false);
+  const [isMuted, setIsMuted] = useState(false);
 
-  useEffect(() => {
-    sounds.current = {
-      keyPress: new Audio('/sounds/key-press.mp3'),
-      correct: new Audio('/sounds/correct.mp3'),
-      wrong: new Audio('/sounds/wrong.mp3'),
-      victory: new Audio('/sounds/victory.mp3'),
-      hint: new Audio('/sounds/hint.mp3'),
-    };
+  const [playKeyPress] = useSound('/sounds/keypress.mp3', { soundEnabled: !isMuted });
+  const [playCorrect] = useSound('/sounds/correct.mp3', { soundEnabled: !isMuted });
+  const [playWrong] = useSound('/sounds/wrong.mp3', { soundEnabled: !isMuted });
+  const [playVictory] = useSound('/sounds/victory.mp3', { soundEnabled: !isMuted });
+  const [playHint] = useSound('/sounds/hint.mp3', { soundEnabled: !isMuted });
 
-    // Set volumes
-    if (sounds.current.keyPress) sounds.current.keyPress.volume = 0.3;
-    if (sounds.current.correct) sounds.current.correct.volume = 0.4;
-    if (sounds.current.wrong) sounds.current.wrong.volume = 0.4;
-    if (sounds.current.victory) sounds.current.victory.volume = 0.5;
-    if (sounds.current.hint) sounds.current.hint.volume = 0.4;
+  const playSound = useCallback((type: 'keyPress' | 'correct' | 'wrong' | 'victory' | 'hint') => {
+    if (isMuted) return;
 
-    return () => {
-      Object.values(sounds.current).forEach(sound => {
-        if (sound) {
-          sound.pause();
-          sound.currentTime = 0;
-        }
-      });
-    };
+    switch (type) {
+      case 'keyPress':
+        playKeyPress();
+        break;
+      case 'correct':
+        playCorrect();
+        break;
+      case 'wrong':
+        playWrong();
+        break;
+      case 'victory':
+        playVictory();
+        break;
+      case 'hint':
+        playHint();
+        break;
+    }
+  }, [isMuted, playKeyPress, playCorrect, playWrong, playVictory, playHint]);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted(prev => !prev);
   }, []);
 
-  const playSound = (type: keyof SoundEffects) => {
-    if (isMuted.current || !sounds.current[type]) return;
-    
-    const sound = sounds.current[type];
-    if (sound) {
-      sound.currentTime = 0;
-      sound.play().catch(() => {
-        // Ignore autoplay errors
-      });
-    }
-  };
-
-  const toggleMute = () => {
-    isMuted.current = !isMuted.current;
-    return isMuted.current;
-  };
-
-  const getMuteStatus = () => isMuted.current;
+  const getMuteStatus = useCallback(() => {
+    return isMuted;
+  }, [isMuted]);
 
   return { playSound, toggleMute, getMuteStatus };
 }

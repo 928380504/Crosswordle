@@ -12,6 +12,7 @@ export interface GameState {
   timeElapsed: number;
   isLoading: boolean;
   lastPlayedAt: Date | null;
+  gameMode: 'daily' | 'practice' | null;
 }
 
 // 单元格状态类型

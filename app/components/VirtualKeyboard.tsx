@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useMemo } from "react";
 
 interface VirtualKeyboardProps {
   onKeyPress: (key: string) => void;
@@ -21,42 +22,66 @@ export default function VirtualKeyboard({
   currentInput,
   gameWords 
 }: VirtualKeyboardProps) {
-  const getKeyState = (key: string) => {
-    if (key === 'ENTER' || key === 'BACKSPACE') {
-      return 'action';
-    }
+  // 使用 useMemo 缓存按键状态计算
+  const keyStates = useMemo(() => {
+    const states = new Map<string, 'correct' | 'present' | 'absent' | 'unused' | 'action'>();
+    
+    // 设置特殊按键
+    states.set('ENTER', 'action');
+    states.set('BACKSPACE', 'action');
+    
+    // 检查所有字母的状态
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
+      // 当前输入中的字母
+      if (currentInput.includes(letter)) {
+        states.set(letter, 'present');
+        return;
+      }
+      
+      // 检查已使用的字母
+      let bestState: 'correct' | 'present' | 'absent' | 'unused' = 'unused';
+      
+      gameWords.forEach((word, wordIndex) => {
+        const rowLetters = usedLetters.slice(wordIndex * 5, (wordIndex + 1) * 5);
+        const letterIndexInWord = word.indexOf(letter);
+        
+        if (letterIndexInWord === -1) return;
+        
+        // 检查字母在当前行是否被使用过
+        if (rowLetters.includes(letter)) {
+          if (rowLetters[letterIndexInWord] === letter) {
+            bestState = 'correct';
+          } else if (bestState !== 'correct') {
+            bestState = 'present';
+          }
+        }
+      });
+      
+      if (usedLetters.includes(letter) && bestState === 'unused') {
+        bestState = 'absent';
+      }
+      
+      states.set(letter, bestState);
+    });
 
-    if (currentInput.includes(key)) {
-      return 'current';
-    }
-
-    if (gameWords.includes(key)) {
-      return 'used';
-    }
-
-    if (usedLetters.includes(key)) {
-      return 'correct';
-    }
-
-    return 'available';
-  };
+    return states;
+  }, [usedLetters, currentInput, gameWords]);
 
   const getKeyStyle = (key: string) => {
-    const state = getKeyState(key);
-    
+    const state = keyStates.get(key) || 'unused';
     const baseStyle = 'transition-all duration-200 font-semibold text-base';
     
     switch (state) {
       case 'action':
-        return `${baseStyle} bg-primary text-primary-foreground hover:bg-primary/90 min-w-[80px]`;
-      case 'current':
-        return `${baseStyle} bg-blue-500 hover:bg-blue-600 text-white`;
-      case 'used':
-        return `${baseStyle} bg-yellow-500 hover:bg-yellow-600 text-yellow-950 dark:bg-yellow-500/80 dark:hover:bg-yellow-500/90 dark:text-yellow-950`;
+        return `${baseStyle} bg-primary text-primary-foreground hover:bg-primary/90 min-w-[4.5rem]`;
       case 'correct':
-        return `${baseStyle} bg-emerald-500 hover:bg-emerald-600 text-emerald-950 dark:bg-emerald-500/80 dark:hover:bg-emerald-500/90 dark:text-emerald-950`;
+        return `${baseStyle} bg-emerald-500 hover:bg-emerald-600 text-white`;
+      case 'present':
+        return `${baseStyle} bg-yellow-500 hover:bg-yellow-600 text-white`;
+      case 'absent':
+        return `${baseStyle} bg-muted text-muted-foreground`;
       default:
-        return `${baseStyle} bg-muted hover:bg-muted/80 text-foreground`;
+        return `${baseStyle} bg-secondary hover:bg-secondary/80 text-foreground`;
     }
   };
 
@@ -68,6 +93,10 @@ export default function VirtualKeyboard({
             <Button
               key={key}
               onClick={() => onKeyPress(key)}
+              disabled={
+                key === 'ENTER' ? currentInput.length !== 5 :
+                key !== 'BACKSPACE' && currentInput.length >= 5
+              }
               className={`${getKeyStyle(key)} h-14 px-3 sm:px-4`}
             >
               {key === 'BACKSPACE' ? '←' : key}
