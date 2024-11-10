@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Gamepad2 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import SoundToggle from "./components/SoundToggle";
 import GameBoard from "./components/GameBoard";
 import GameRules from "./components/GameRules";
 import { GameState } from "./types/game";
-import { useGameSounds } from "./hooks/useSound";
 import { useGameState } from './hooks/useGameState';
 import { Badge } from "@/components/ui/badge";
 import GameStats from "./components/GameStats";
@@ -39,7 +37,6 @@ const INITIAL_STATE: GameState = {
 export default function Home() {
   const { gameState, gameStats, updateGameState } = useGameState(INITIAL_STATE);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
-  const { playSound } = useGameSounds();
 
   // 初始化游戏
   useEffect(() => {
@@ -83,7 +80,6 @@ export default function Home() {
     const { input, currentRow, gameWords } = gameState;
 
     if (input.length !== 5) {
-      playSound('wrong');
       updateGameState({
         message: "Please enter a 5-letter word"
       });
@@ -102,8 +98,6 @@ export default function Home() {
       const isLastRow = currentRow === 4;
       const newScore = calculateScore(100);
       
-      playSound(isLastRow ? 'victory' : 'correct');
-      
       updateGameState({
         board: newBoard,
         input: "",
@@ -118,7 +112,6 @@ export default function Home() {
         clearInterval(timer);
       }
     } else {
-      playSound('wrong');
       updateGameState({
         board: newBoard,
         input: "",
@@ -131,7 +124,6 @@ export default function Home() {
   const handleHint = () => {
     const { hints, currentRow, gameWords } = gameState;
     if (hints > 0) {
-      playSound('hint');
       const currentWord = gameWords[currentRow];
       updateGameState({
         input: currentWord[0],
@@ -145,7 +137,6 @@ export default function Home() {
   const handleKeyPress = (key: string) => {
     if (gameState.gameOver) return;
     
-    playSound('keyPress');
     const { input } = gameState;
 
     switch (key) {
@@ -170,11 +161,6 @@ export default function Home() {
     return baseScore + timeBonus - hintPenalty;
   };
 
-  const handleSoundToggle = (isMuted: boolean) => {
-    // 这里可以处理声音开关逻辑
-    // 例如：updateSoundSettings(isMuted);
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-[1400px] mx-auto px-6 py-8">
@@ -192,7 +178,6 @@ export default function Home() {
               totalHintsUsed: 0,
               perfectGames: 0,
             }} />
-            <SoundToggle onToggle={handleSoundToggle} />
             <ThemeToggle />
           </div>
         </div>

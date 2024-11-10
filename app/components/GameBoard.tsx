@@ -118,6 +118,15 @@ export default function GameBoard({
     }
   };
 
+  const handleSubmit = () => {
+    if (input.length !== 5) {
+      onInputChange("Please enter a 5-letter word");
+      return;
+    }
+
+    onSubmit();
+  };
+
   return (
     <Card className="bg-card border-border">
       <CardHeader>
@@ -202,7 +211,7 @@ export default function GameBoard({
               Hint ({hints})
             </Button>
             <Button
-              onClick={onSubmit}
+              onClick={handleSubmit}
               disabled={gameOver || input.length !== 5}
               className="bg-primary hover:bg-primary/90 px-6 py-2 text-lg"
             >
