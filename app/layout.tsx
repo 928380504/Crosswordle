@@ -30,20 +30,20 @@ export default function RootLayout({
       <head>
         <Script
           strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=G-YSCPN2ZEKM`}
+          src="https://www.googletagmanager.com/gtag/js?id=G-YSCPN2ZEKM"
         />
         <Script
           id="google-analytics"
           strategy="afterInteractive"
-        >
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-YSCPN2ZEKM');
-          `}
-        </Script>
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-YSCPN2ZEKM');
+            `
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
