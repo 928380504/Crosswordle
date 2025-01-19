@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Brain, 
   Clock, 
@@ -60,7 +59,7 @@ export default function GameRules() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[300px] pr-4">
+        <div className="max-h-[300px] overflow-y-auto pr-4">
           <div className="grid gap-6">
             {rules.map((rule, index) => (
               <div key={index} className="flex gap-4">
@@ -72,7 +71,7 @@ export default function GameRules() {
               </div>
             ))}
           </div>
-        </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );
