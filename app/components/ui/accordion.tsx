@@ -24,6 +24,13 @@ const AccordionContext = React.createContext<AccordionContextValue>({
   type: "single",
 });
 
+interface AccordionItemContextValue {
+  value: string;
+  isOpen: boolean;
+}
+
+const AccordionItemContext = React.createContext<AccordionItemContextValue | null>(null);
+
 export function Accordion({
   type = "single",
   collapsible = false,
@@ -67,23 +74,25 @@ interface AccordionItemProps {
 }
 
 export function AccordionItem({
-  value,
+  value: itemValue,
   className,
   children,
 }: AccordionItemProps) {
   const { value: selectedValues } = React.useContext(AccordionContext);
-  const isOpen = selectedValues.includes(value);
+  const isOpen = selectedValues.includes(itemValue);
 
   return (
-    <div
-      className={cn(
-        "border rounded-lg",
-        isOpen && "bg-accent",
-        className
-      )}
-    >
-      {children}
-    </div>
+    <AccordionItemContext.Provider value={{ value: itemValue, isOpen }}>
+      <div
+        className={cn(
+          "border rounded-lg",
+          isOpen && "bg-accent",
+          className
+        )}
+      >
+        {children}
+      </div>
+    </AccordionItemContext.Provider>
   );
 }
 
@@ -126,11 +135,6 @@ interface AccordionContentProps {
   className?: string;
   children: React.ReactNode;
 }
-
-const AccordionItemContext = React.createContext<{
-  value: string;
-  isOpen: boolean;
-} | null>(null);
 
 export function AccordionContent({
   className,
