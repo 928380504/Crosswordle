@@ -58,7 +58,7 @@ export default function GameStats({ stats }: GameStatsProps) {
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button variant="outline" className="gap-2">
           <BarChart2 className="w-4 h-4" />
           Stats
