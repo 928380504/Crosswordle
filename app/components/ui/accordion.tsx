@@ -67,44 +67,34 @@ export function Accordion({
   );
 }
 
-interface AccordionItemProps {
-  value: string;
-  className?: string;
-  children: React.ReactNode;
-}
-
 export function AccordionItem({
   value: itemValue,
   className,
   children,
-}: AccordionItemProps) {
+}: {
+  value: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
   const { value: selectedValues } = React.useContext(AccordionContext);
   const isOpen = selectedValues.includes(itemValue);
 
   return (
     <AccordionItemContext.Provider value={{ value: itemValue, isOpen }}>
-      <div
-        className={cn(
-          "border rounded-lg",
-          isOpen && "bg-accent",
-          className
-        )}
-      >
+      <div className={cn("border rounded-lg", isOpen && "bg-accent", className)}>
         {children}
       </div>
     </AccordionItemContext.Provider>
   );
 }
 
-interface AccordionTriggerProps {
-  className?: string;
-  children: React.ReactNode;
-}
-
 export function AccordionTrigger({
   className,
   children,
-}: AccordionTriggerProps) {
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
   const { toggle } = React.useContext(AccordionContext);
   const item = React.useContext(AccordionItemContext);
 
@@ -131,15 +121,13 @@ export function AccordionTrigger({
   );
 }
 
-interface AccordionContentProps {
-  className?: string;
-  children: React.ReactNode;
-}
-
 export function AccordionContent({
   className,
   children,
-}: AccordionContentProps) {
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
   const item = React.useContext(AccordionItemContext);
 
   if (!item) {
