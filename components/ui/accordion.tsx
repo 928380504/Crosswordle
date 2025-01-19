@@ -1,10 +1,16 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import * as AccordionPrimitive from '@radix-ui/react-accordion';
-import { ChevronDown } from 'lucide-react';
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
-import { cn } from '@/lib/utils';
+interface AccordionProps {
+  type?: "single" | "multiple";
+  collapsible?: boolean;
+  defaultValue?: string | string[];
+  className?: string;
+  children: React.ReactNode;
+}
 
 const Accordion = AccordionPrimitive.Root;
 
