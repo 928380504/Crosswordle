@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   ...siteMetadata,
-  title: 'Crosswordle',
-  description: 'Blend the best of Crossword & Wordle in one addictive game! Challenge your mind with daily puzzles',
+  title: 'Crosswordle-Free Online Wrod Game',
+  description: 'Challenge your mind with daily puzzles,Blend the best of Crossword & Wordle in one addictive game! ',
   robots: {
     index: true,
     follow: true,
