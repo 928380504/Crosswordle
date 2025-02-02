@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
 import { metadata as siteMetadata } from './metadata';
+import GoogleAnalytics from '@/app/components/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -43,6 +44,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
@@ -52,20 +56,6 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
-        <script 
-          async 
-          src="https://www.googletagmanager.com/gtag/js?id=G-YSCPN2ZEKM"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-YSCPN2ZEKM');
-            `
-          }}
-        />
       </body>
     </html>
   );
