@@ -128,57 +128,30 @@ export default function GameBoard({
   };
 
   return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-2xl">Game Board</CardTitle>
-            <CardDescription className="text-lg">
-              Find the hidden 5-letter words
-            </CardDescription>
+    <Card className="p-4">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-full flex justify-end gap-4 text-base text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Timer className="w-4 h-4" />
+            <span>{formatTime(timeElapsed)}</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex gap-4">
-              <Badge variant="outline" className="px-4 py-2">
-                <Trophy className="w-4 h-4 mr-2" />
-                Score: {score}
-              </Badge>
-              <Badge variant="outline" className="px-4 py-2">
-                <Zap className="w-4 h-4 mr-2" />
-                Streak: {streak}
-              </Badge>
-              <Badge variant="outline" className="px-4 py-2">
-                <Timer className="w-4 h-4 mr-2" />
-                Time: {formatTime(timeElapsed)}
-              </Badge>
-            </div>
-            {gameOver && (
-              <ShareGame
-                score={score}
-                timeElapsed={timeElapsed}
-                board={board}
-                hintsUsed={3 - hints}
-              />
-            )}
-            <Button
-              variant="outline"
-              onClick={onNewGame}
-              className="flex items-center gap-2"
-            >
-              <RefreshCcw className="w-4 h-4" />
-              New Game
-            </Button>
+          <div className="flex items-center gap-1.5">
+            <Zap className="w-4 h-4" />
+            <span>{score} pts</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Trophy className="w-4 h-4" />
+            <span>Streak: {streak}</span>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-3 mb-8">
+
+        <div className="grid gap-1.5 w-full max-w-2xl mx-auto">
           {cellStates.map((row, i) => (
             <div key={i} className="flex gap-3 justify-center">
               {row.map((cell, j) => (
                 <div
                   key={j}
-                  className={`w-16 h-16 flex items-center justify-center text-2xl font-bold rounded-lg border-2 
+                  className={`w-[4.5rem] h-[4.5rem] flex items-center justify-center text-2xl font-bold rounded-lg border-2 
                     transition-all duration-300
                     ${i === currentRow ? "border-primary animate-pulse" : "border-border"}
                     ${cell.state === 'correct' ? "bg-emerald-600 text-emerald-50" :
@@ -192,59 +165,62 @@ export default function GameBoard({
           ))}
         </div>
 
-        <div className="flex flex-col gap-8">
-          {/* Current Input Display */}
+        <div className="w-full max-w-sm space-y-2">
           <div className="h-12 flex items-center justify-center">
             <div className="text-2xl font-semibold bg-muted/30 px-6 py-2 rounded-lg min-w-[150px] text-center">
               {input || "Type your word"}
             </div>
           </div>
 
-          {/* Game Controls */}
-          <div className="flex justify-center gap-4 mb-4">
+          <div className="flex justify-center gap-2">
             <Button
               onClick={onHint}
               disabled={gameOver || hints === 0}
               variant="outline"
-              className="px-6 py-2 text-lg"
+              className="px-4 py-2"
             >
               Hint ({hints})
             </Button>
             <Button
-              onClick={handleSubmit}
+              onClick={onSubmit}
               disabled={gameOver || input.length !== 5}
-              className="bg-primary hover:bg-primary/90 px-6 py-2 text-lg"
+              className="bg-primary hover:bg-primary/90 px-6 py-2"
             >
               Submit
             </Button>
+            <Button
+              onClick={onNewGame}
+              variant="outline"
+              className="px-4 py-2"
+              title="Start New Game"
+            >
+              <RefreshCcw className="w-4 h-4 mr-2" />
+              New
+            </Button>
           </div>
 
-          {/* Message Display */}
           {message && (
-            <div className="h-8 flex items-center justify-center">
-              <p className={`text-lg font-medium ${
-                message.includes("Congratulations") 
-                  ? "text-emerald-500" 
-                  : message.includes("Correct") 
-                    ? "text-blue-500" 
-                    : "text-red-500"
+            <div className="flex justify-center">
+              <div className={`text-base font-medium ${
+                message.includes('Correct') ? 'text-emerald-500' : 
+                message.includes('Congratulations') ? 'text-emerald-500' : 
+                'text-red-500'
               }`}>
                 {message}
-              </p>
+              </div>
             </div>
           )}
-
-          {/* Virtual Keyboard */}
-          <div className="mt-4">
-            <VirtualKeyboard 
-              onKeyPress={handleVirtualKeyPress}
-              usedLetters={board.flat()}
-              currentInput={input}
-              gameWords={gameWords}
-            />
-          </div>
         </div>
-      </CardContent>
+
+        <div className="w-full max-w-3xl mx-auto mt-2">
+          <VirtualKeyboard
+            onKeyPress={handleVirtualKeyPress}
+            usedLetters={[]}
+            currentInput={input}
+            gameWords={gameWords}
+          />
+        </div>
+      </div>
     </Card>
   );
 }

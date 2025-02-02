@@ -1,47 +1,46 @@
 "use client";
 
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
 
 const FAQ = () => {
   const faqs = [
     {
-      question: "How do I play Crosswordle?",
-      answer: "Crosswordle combines elements of crossword puzzles and Wordle. You need to guess 5 different 5-letter words. Each word gives you hints for the next ones through color-coded feedback: green for correct letter and position, yellow for correct letter but wrong position."
+      question: "What makes Crosswordle unique?",
+      answer: "Crosswordle is a unique word puzzle game that combines the best elements of crossword puzzles and word guessing games. Unlike other word games, Crosswordle challenges you to solve multiple connected words simultaneously, making it both engaging and strategic."
     },
     {
-      question: "What are the different difficulty levels?",
-      answer: "There are three difficulty levels: Easy (3 hints, more time bonus), Normal (2 hints, standard scoring), and Hard (1 hint, higher base score but stricter time limit). Choose based on your experience level!"
+      question: "How do I get better at Crosswordle?",
+      answer: "To improve your Crosswordle skills, focus on common 5-letter words, pay attention to letter patterns, and use the color hints strategically. Regular practice with Crosswordle will help you recognize word patterns and improve your vocabulary."
     },
     {
-      question: "How does the scoring system work?",
-      answer: "Your score is calculated based on several factors: base points for correct words, time bonus (faster completion = more points), combo multiplier for consecutive correct guesses, and penalties for using hints. The harder the difficulty, the higher the potential score!"
+      question: "Can I play Crosswordle on mobile devices?",
+      answer: "Yes! Crosswordle is fully optimized for mobile devices. You can enjoy Crosswordle on any device with a web browser. The virtual keyboard makes it easy to play Crosswordle on your smartphone or tablet."
     },
     {
-      question: "What are combos and how do they work?",
-      answer: "Combos are earned by correctly guessing words in succession. Each correct guess increases your combo multiplier, adding bonus points to your score. Be careful though - an incorrect guess breaks your combo!"
+      question: "How does Crosswordle's scoring system work?",
+      answer: "Crosswordle's scoring system rewards both accuracy and speed. Each successful word in Crosswordle earns base points, with bonuses for quick completion and maintaining streaks. The unique Crosswordle combo system multiplies your score for consecutive correct guesses."
     },
     {
-      question: "What are achievements?",
-      answer: "Achievements are special rewards for reaching certain milestones, such as: High Scorer (1000+ points), Combo Master (5+ combo), Streak Champion (3+ wins in a row), and Hard Mode Master (800+ points on hard difficulty)."
+      question: "What are Crosswordle achievements?",
+      answer: "Crosswordle features various achievements to unlock, such as Perfect Game (completing Crosswordle without hints), Speed Master (fast completion), and Streak Champion (maintaining winning streaks). Each achievement in Crosswordle adds to your overall mastery of the game."
     },
     {
-      question: "How do hints work?",
-      answer: "Hints reveal the first letter of the current word. Each difficulty level has a different number of available hints (Easy: 3, Normal: 2, Hard: 1). Using hints will reduce your final score, so use them wisely!"
+      question: "How often are new words added to Crosswordle?",
+      answer: "The Crosswordle word database is regularly updated with new, carefully selected 5-letter words. We ensure all words in Crosswordle are common and recognizable, making the game both challenging and enjoyable for players of all skill levels."
     },
     {
-      question: "What is a perfect game?",
-      answer: "A perfect game is achieved by completing all words within 3 minutes without using any hints. This awards you a special 500-point bonus! It's quite challenging but very rewarding."
+      question: "Is there a daily challenge in Crosswordle?",
+      answer: "Yes! Crosswordle features a daily challenge mode where all players attempt the same puzzle. This makes Crosswordle perfect for competing with friends and comparing scores on the same set of words."
     },
     {
-      question: "Can I play on mobile devices?",
-      answer: "Yes! Crosswordle is fully playable on mobile devices. You can use the virtual keyboard provided on screen, which works just like a physical keyboard."
+      question: "How can I share my Crosswordle results?",
+      answer: "After completing a Crosswordle puzzle, you can easily share your results with friends. The share feature includes your score, time, and a visual representation of your Crosswordle journey, perfect for social media sharing."
     }
   ];
 
@@ -54,18 +53,14 @@ const FAQ = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Accordion type="single" collapsible className="w-full">
+        <div className="grid gap-8">
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
+            <div key={index} className="space-y-2">
+              <h3 className="text-lg font-semibold">{faq.question}</h3>
+              <p className="text-muted-foreground">{faq.answer}</p>
+            </div>
           ))}
-        </Accordion>
+        </div>
       </CardContent>
     </Card>
   );

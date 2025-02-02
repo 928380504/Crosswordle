@@ -8,14 +8,31 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   ...siteMetadata,
+  title: 'Crosswordle',
+  description: 'Blend the best of Crossword & Wordle in one addictive game! Challenge your mind with daily puzzles',
   robots: {
     index: true,
     follow: true,
   },
   manifest: '/manifest.json',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: [
+      {
+        url: '/favicon.ico',
+        sizes: 'any',
+      },
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+      }
+    ],
+    apple: [
+      {
+        url: '/apple-touch-icon.png',
+        sizes: '180x180',
+      }
+    ],
+    shortcut: '/favicon.ico',
   },
 };
 

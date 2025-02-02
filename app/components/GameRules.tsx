@@ -3,7 +3,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -54,23 +53,18 @@ export default function GameRules() {
     <Card>
       <CardHeader>
         <CardTitle className="text-2xl">Game Rules</CardTitle>
-        <CardDescription>
-          Learn how to play Crosswordle
-        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="max-h-[300px] overflow-y-auto pr-4">
-          <div className="grid gap-6">
-            {rules.map((rule, index) => (
-              <div key={index} className="flex gap-4">
-                <div className="mt-1">{rule.icon}</div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">{rule.title}</h3>
-                  <p className="text-muted-foreground">{rule.description}</p>
-                </div>
+        <div className="grid gap-6">
+          {rules.map((rule, index) => (
+            <div key={index} className="flex gap-4 items-start">
+              <div className="mt-1">{rule.icon}</div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">{rule.title}</h3>
+                <p className="text-muted-foreground">{rule.description}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>

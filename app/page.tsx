@@ -2,50 +2,24 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Gamepad2, Trophy, Star, Target } from "lucide-react";
+import { Gamepad2, Trophy, Star, Target, RefreshCcw } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import GameBoard from "./components/GameBoard";
 import GameRules from "./components/GameRules";
-import { 
-  GameState, 
-  DifficultyConfig, 
-  Difficulty,
-  DifficultySettings 
-} from "./types/game";
+import { GameState } from "./types/game";
 import { useGameState } from './hooks/useGameState';
 import { Badge } from "@/components/ui/badge";
 import GameStats from "./components/GameStats";
 import { toast } from "sonner";
 import FAQ from "./components/FAQ";
 import Footer from "./components/Footer";
+import { getRandomWordSet } from "@/app/data/wordSets";
 
-// 扩展词库
-const WORDS = [
-  ["REACT", "REDUX", "NEXT", "NODE", "TYPE"],
-  ["STYLE", "STATE", "STACK", "STORE", "SWIFT"],
-  ["CLASS", "CLOUD", "CLEAN", "CLEAR", "CLOSE"],
-  ["BUILD", "BREAK", "BRAVE", "BRING", "BRAIN"],
-  ["FLASH", "FLAME", "FLARE", "FLOAT", "FLOOR"],
-  ["SPACE", "SPARK", "SPEAK", "SPEED", "SPELL"],
-];
-
-// 修改难度设置的类型注解
-const DIFFICULTY_SETTINGS: Record<Difficulty, DifficultySettings> = {
-  easy: {
-    timeBonus: 400,
-    hints: 3,
-    baseScore: 100,
-  },
-  normal: {
-    timeBonus: 300,
-    hints: 2,
-    baseScore: 150,
-  },
-  hard: {
-    timeBonus: 200,
-    hints: 1,
-    baseScore: 200,
-  },
+// 简化设置
+const GAME_SETTINGS = {
+  timeBonus: 300,
+  hints: 3,
+  baseScore: 150,
 };
 
 const INITIAL_STATE: GameState = {
@@ -71,9 +45,9 @@ const INITIAL_STATE: GameState = {
 export default function Home() {
   const { gameState, gameStats, updateGameState } = useGameState(INITIAL_STATE);
   const [timer, setTimer] = React.useState<ReturnType<typeof setInterval> | null>(null);
-  const [difficulty, setDifficulty] = React.useState<Difficulty>('normal');
+  const [timeElapsed, setTimeElapsed] = React.useState(0);
 
-  // 初始化游戏
+  // 修改初始化游戏
   React.useEffect(() => {
     startNewGame();
     return () => {
@@ -81,21 +55,26 @@ export default function Home() {
     };
   }, []);
 
-  // 开始新游戏
+  // 修改开始新游戏
   const startNewGame = () => {
     if (timer) clearInterval(timer);
     
-    const randomSet = WORDS[Math.floor(Math.random() * WORDS.length)];
+    const randomSet = getRandomWordSet();
+    setTimeElapsed(0);
+    
     updateGameState({
       ...INITIAL_STATE,
       gameWords: randomSet,
       streak: gameState.gameOver ? 0 : gameState.streak,
-      lastPlayedAt: new Date()
+      lastPlayedAt: new Date(),
+      timeElapsed: 0
     });
 
     const newTimer = setInterval(() => {
-      updateGameState({
-        timeElapsed: gameState.timeElapsed + 1
+      setTimeElapsed(prev => {
+        const newTime = prev + 1;
+        updateGameState({ timeElapsed: newTime });
+        return newTime;
       });
     }, 1000);
 
@@ -131,8 +110,8 @@ export default function Home() {
     if (gameWords.includes(word)) {
       const isLastRow = currentRow === 4;
       const newCombo = combo + 1;
-      const comboBonus = Math.floor(newCombo * 0.5) * 50; // 连击奖励
-      const newScore = calculateScore(DIFFICULTY_SETTINGS[difficulty].baseScore) + comboBonus;
+      const comboBonus = Math.floor(newCombo * 0.5) * 50;
+      const newScore = calculateScore(GAME_SETTINGS.baseScore) + comboBonus;
       
       // 检查是否达成成就
       const newAchievements = checkAchievements(newScore, newCombo);
@@ -172,7 +151,7 @@ export default function Home() {
   // 完美游戏检查
   const handlePerfectGame = () => {
     const { hints, timeElapsed } = gameState;
-    if (hints === DIFFICULTY_SETTINGS[difficulty].hints && timeElapsed < 180) {
+    if (hints === GAME_SETTINGS.hints && timeElapsed < 180) {
       toast.success("Perfect Game! +500 bonus points!");
       updateGameState({
         score: gameState.score + 500
@@ -201,9 +180,8 @@ export default function Home() {
 
   // 修改计分系统
   const calculateScore = (baseScore: number) => {
-    const settings = DIFFICULTY_SETTINGS[difficulty as Difficulty];
-    const timePoints = Math.max(0, settings.timeBonus - gameState.timeElapsed);
-    const hintPenalty = (settings.hints - gameState.hints) * 50;
+    const timePoints = Math.max(0, GAME_SETTINGS.timeBonus - gameState.timeElapsed);
+    const hintPenalty = (GAME_SETTINGS.hints - gameState.hints) * 50;
     return baseScore + timePoints - hintPenalty;
   };
 
@@ -243,59 +221,50 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-[1400px] mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-12">
-          <div className="flex items-center gap-3">
-            <Gamepad2 className="w-10 h-10 text-primary" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
-              Crosswordle
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <GameStats stats={{
-              ...gameStats,
-              averageTime: 180,
-              totalHintsUsed: 0,
-              perfectGames: 0,
-            }} />
+      {/* 移除阴影和边框 */}
+      <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-[1400px] mx-auto px-4 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg 
+                width="32" 
+                height="32" 
+                viewBox="0 0 512 512" 
+                className="text-primary"
+              >
+                <rect width="512" height="512" rx="128" className="fill-primary/10"/>
+                <path 
+                  d="M256 128C256 119.163 263.163 112 272 112H368C376.837 112 384 119.163 384 128V224C384 232.837 376.837 240 368 240H272C263.163 240 256 232.837 256 224V128Z" 
+                  className="fill-emerald-500"
+                />
+                <path 
+                  d="M128 272C128 263.163 135.163 256 144 256H240C248.837 256 256 263.163 256 272V368C256 376.837 248.837 384 240 384H144C135.163 384 128 376.837 128 368V272Z" 
+                  className="fill-yellow-500"
+                />
+                <path 
+                  d="M272 272C272 263.163 279.163 256 288 256H384C392.837 256 400 263.163 400 272V368C400 376.837 392.837 384 384 384H288C279.163 384 272 376.837 272 368V272Z" 
+                  className="fill-blue-500"
+                />
+              </svg>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
+                Crosswordle
+              </h1>
+            </div>
             <ThemeToggle />
           </div>
         </div>
+      </div>
 
-        <div className="flex flex-col gap-8">
-          <div className="flex justify-center gap-4">
-            {(Object.keys(DIFFICULTY_SETTINGS) as Difficulty[]).map((level) => (
-              <Button
-                key={level}
-                variant={difficulty === level ? "default" : "outline"}
-                onClick={() => setDifficulty(level)}
-                className="capitalize"
-                disabled={gameState.currentRow > 0}
-              >
-                {level}
-              </Button>
-            ))}
-          </div>
-
+      {/* 主要内容区域 */}
+      <div className="max-w-[1400px] mx-auto px-4 py-4">
+        <div className="flex flex-col gap-4">
           {gameState.combo > 1 && (
-            <div className="text-center">
-              <Badge variant="secondary" className="text-lg px-4 py-2">
+            <div className="text-center mb-2">
+              <Badge variant="secondary" className="text-base px-3 py-0.5">
                 {gameState.combo}x Combo!
               </Badge>
             </div>
           )}
-
-          <div className="flex items-center gap-4 mb-4">
-            <Badge className="px-4 py-2">
-              High Score: {gameStats.highScore}
-            </Badge>
-            <Badge className="px-4 py-2">
-              Games Played: {gameStats.gamesPlayed}
-            </Badge>
-            <Badge className="px-4 py-2">
-              Longest Streak: {gameStats.longestStreak}
-            </Badge>
-          </div>
 
           <GameBoard
             board={gameState.board}
