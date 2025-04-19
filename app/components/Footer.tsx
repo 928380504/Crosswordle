@@ -21,6 +21,7 @@ const Footer = () => {
       { name: "Crosswordle", url: "https://www.crosswordle.io" },
       { name: "Abgerny", url: "https://www.abgerny.co" },
       { name: "Incredibox Sprunki", url: "https://www.incredibox-sprunki.co" },
+      { name: "Crazy Cattle 3D", url: "https://crazy-cattle.cc/" },
     ],
   };
 
