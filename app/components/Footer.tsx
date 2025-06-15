@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 
 const Footer = () => {
   const links = {
-    games: [
+    tools: [
       { name: "Drift Boss", url: "https://www.drift-boss.net" },
       { name: "Text Twist 2", url: "https://text-twist2.co" },
       { name: "Gamma Emerald", url: "https://gamma-emerald.co" },
@@ -16,7 +16,7 @@ const Footer = () => {
       { name: "Subway Surfers", url: "https://subway-surfers.cc" },
       { name: "Slope Game", url: "https://slope-game.cc" },
     ],
-    games2: [
+    games: [
       { name: "Snake Games", url: "https://snake-games.com" },
       { name: "BlockBlast Game", url: "https://blockblast-game.cc" },
       { name: "1v1 LOL", url: "https://1v1-lol.cc" },
