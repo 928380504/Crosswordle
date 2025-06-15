@@ -4,24 +4,28 @@ import { Card } from "@/components/ui/card";
 
 const Footer = () => {
   const links = {
-    tools: [
-      { name: "Glitch Text Generator", url: "https://glitch-text-generator.org" },
-      { name: "Freaky Font", url: "https://freaky-font.org" },
-      { name: "Chinese Name Generator", url: "https://chinese-name-generator.org" },
-      { name: "Cursed Text Generator", url: "https://cursed-text-generator.org" },
-      { name: "Ambigram Generator", url: "https://ambigram-generator.org" },
-      { name: "Barbie Font", url: "https://barbie-font.org" },
-    ],
     games: [
-      { name: "Text Twist", url: "https://text-twist.co" },
-      { name: "Text Twist 2", url: "https://text-twist2.co" },
-      { name: "Stimulation Clicker", url: "https://stimulation-clicker.org" },
-      { name: "Candy Jump", url: "https://candy-jump.com" },
       { name: "Drift Boss", url: "https://www.drift-boss.net" },
-      { name: "Crosswordle", url: "https://www.crosswordle.io" },
-      { name: "Abgerny", url: "https://www.abgerny.co" },
-      { name: "Incredibox Sprunki", url: "https://www.incredibox-sprunki.co" },
-      { name: "Crazy Cattle 3D", url: "https://crazy-cattle.cc/" },
+      { name: "Text Twist 2", url: "https://text-twist2.co" },
+      { name: "Gamma Emerald", url: "https://gamma-emerald.co" },
+      { name: "Candy Clicker", url: "https://candy-clicker.co" },
+      { name: "Planet Clicker", url: "https://planet-clicker.co" },
+      { name: "Cookie Clicker", url: "https://cookie-clicker.cc" },
+      { name: "Capybara Clicker", url: "https://capybara-clicker.co" },
+      { name: "Geometry Dash", url: "https://geometry-dash.cc" },
+      { name: "Subway Surfers", url: "https://subway-surfers.cc" },
+      { name: "Slope Game", url: "https://slope-game.cc" },
+    ],
+    games2: [
+      { name: "Snake Games", url: "https://snake-games.com" },
+      { name: "BlockBlast Game", url: "https://blockblast-game.cc" },
+      { name: "1v1 LOL", url: "https://1v1-lol.cc" },
+      { name: "Infinite Craft", url: "https://infinite-craft.cc" },
+      { name: "Strands NYT", url: "https://strands-nyt.cc" },
+      { name: "Play Pacman", url: "https://play-pacman.com" },
+      { name: "Dinosaur Game", url: "https://play-dinosaur-game.com" },
+      { name: "Spider Solitaire", url: "https://spider-solitaire-free.com" },
+      { name: "Sudoku Online", url: "https://sudoku-online-free.com" },
     ],
   };
 
@@ -78,4 +82,4 @@ const Footer = () => {
   );
 };
 
-export default Footer; 
+export default Footer;
